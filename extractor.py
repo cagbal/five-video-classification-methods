@@ -3,6 +3,7 @@ from keras.applications.inception_v3 import InceptionV3, preprocess_input
 from keras.models import Model, load_model
 from keras.layers import Input
 import numpy as np
+import scipy
 
 class Extractor():
     def __init__(self, weights=None):
@@ -36,9 +37,17 @@ class Extractor():
             self.model.output_layers = [self.model.layers[-1]]
             self.model.layers[-1].outbound_nodes = []
 
-    def extract(self, image_path):
-        img = image.load_img(image_path, target_size=(299, 299))
-        x = image.img_to_array(img)
+    def extract(self, img):
+
+        if type(img) is str:
+           img = image.load_img(img, target_size=(299, 299))
+           x = image.img_to_array(img)
+        else: 
+           x = scipy.misc.imresize(img, (299, 299))
+
+           # Convert type to float
+           x = x.astype(float)
+
         x = np.expand_dims(x, axis=0)
         x = preprocess_input(x)
 
