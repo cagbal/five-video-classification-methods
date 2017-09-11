@@ -6,7 +6,7 @@ from models import ResearchModels
 from data import DataSet
 import time
 
-def train(data_type, seq_length, model, saved_model=None,
+def train(data_type, seq_length, model, feature_length, saved_model=None,
           concat=False, class_limit=None, image_shape=None,
           load_to_memory=False):
     # Set variables.
@@ -58,7 +58,8 @@ def train(data_type, seq_length, model, saved_model=None,
         val_generator = data.frame_generator(batch_size, 'test', data_type, concat)
 
     # Get the model.
-    rm = ResearchModels(len(data.classes), model, seq_length, saved_model)
+    rm = ResearchModels(len(data.classes), model, seq_length, saved_model,\
+        feature_length=feature_length)
 
     # Fit!
     if load_to_memory:
@@ -87,9 +88,10 @@ def main():
     this file."""
     model = 'lstm'  # see `models.py` for more
     saved_model = None  # None or weights file
-    class_limit = None  # int, can be 1-101 or None
+    class_limit = 101  # int, can be 1-101 or None
     seq_length = 40
     load_to_memory = True  # pre-load the sequences into memory
+    feature_length = 1024
 
     # Chose images or features and image shape based on network.
     if model == 'conv_3d' or model == 'crnn':
@@ -108,7 +110,7 @@ def main():
 
     train(data_type, seq_length, model, saved_model=saved_model,
           class_limit=class_limit, concat=concat, image_shape=image_shape,
-          load_to_memory=load_to_memory)
+          load_to_memory=load_to_memory, feature_length=feature_length)
 
 if __name__ == '__main__':
     main()

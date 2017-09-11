@@ -1,5 +1,6 @@
 from keras.preprocessing import image
-from keras.applications.inception_v3 import InceptionV3, preprocess_input
+#from keras.applications.inception_v3 import InceptionV3, preprocess_input
+from keras.applications.mobilenet import MobileNet, preprocess_input
 from keras.models import Model, load_model
 from keras.layers import Input
 import numpy as np
@@ -14,15 +15,16 @@ class Extractor():
 
         if weights is None:
             # Get model with pretrained weights.
-            base_model = InceptionV3(
+            base_model = MobileNet(
                 weights='imagenet',
-                include_top=True
+                include_top=False,
+                pooling='avg'
             )
 
             # We'll extract features at the final pool layer.
             self.model = Model(
                 inputs=base_model.input,
-                outputs=base_model.get_layer('avg_pool').output
+                outputs=base_model.get_layer('global_average_pooling2d_1').output
             )
 
         else:
@@ -40,10 +42,10 @@ class Extractor():
     def extract(self, img):
 
         if type(img) is str:
-           img = image.load_img(img, target_size=(299, 299))
+           img = image.load_img(img, target_size=(224, 224))
            x = image.img_to_array(img)
-        else: 
-           x = scipy.misc.imresize(img, (299, 299))
+        else:
+           x = scipy.misc.imresize(img, (224, 224))
 
            # Convert type to float
            x = x.astype(float)
